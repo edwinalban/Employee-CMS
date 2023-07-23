@@ -100,6 +100,8 @@ function viewEmployees() {
     SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(managers.first_name, '', managers.last_name) AS manager
     FROM employees
     LEFT JOIN roles ON employees.role_id = roles.id
+    LEFT JOIN departments ON roles.department_id = departments.id
+    LEFT JOIN employees manager ON employees.manager_id = manager.id
     `;
     db.query(query, (err, results) => {
         if (err) throw err;
