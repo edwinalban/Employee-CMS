@@ -95,9 +95,10 @@ function viewRoles() {
     });
 };
 
+// Function to view all Employees
 function viewEmployees() {
     const query = `
-    SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(managers.first_name, '', managers.last_name) AS manager
+    SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
     FROM employees
     LEFT JOIN roles ON employees.role_id = roles.id
     LEFT JOIN departments ON roles.department_id = departments.id
@@ -109,5 +110,62 @@ function viewEmployees() {
         console.table(results);
         promptUser();
     });
+};
+
+// Function to add a deparment
+function addDepartment() {
+    inquirer
+        .prompt([{
+            type: 'input',
+            name: 'addDepartment',
+            message: 'What is the name of the Department you would like to add?',
+            validate: addDepartment => {
+                if (addDepartment) {
+                    return true;
+                } else {
+                    console.log('Please enter a department name');
+                    return false;
+                }
+            }
+        }])
+        .then((answer) => {
+            const query = `INSERT INTO departments (name) Values (?)`;
+            db.query(query, answer.addDepartment, (err, result) => {
+                if (err) throw err;
+                console.log(`Successfully added ${answer.addDepartment} to departments!`);
+
+                viewDepartments();
+            });
+        });
+};
+
+// Function to add a role
+function addRole() {
+    inquirer
+        .prompt([
+            {
+                name: 'roleName',
+                type: 'input',
+                message: 'What is the title of this role:',
+            },
+            {
+                name: 'roleSalary',
+                type: 'input',
+                message: 'What is the salary for this role:',
+            },
+            {
+                name: 'departmentId',
+                type: 'input',
+                message: 'What is the department id for this role:',
+            },
+        ])
+        .then((answers) => {
+            const query = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`
+            db.query(query, [answers.roleName, answers.roleSalary, answers.departmentId], (err, result) => {
+                if (err) throw err;
+                console.log(`Successfully added ${answers.roleName} to roles!`);
+                viewRoles();
+            });
+        });
 };
 
