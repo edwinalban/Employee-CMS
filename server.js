@@ -147,17 +147,41 @@ function addRole() {
                 type: 'input',
                 name: 'roleName',
                 message: 'What is the title of this role:',
+                validate: roleName => {
+                    if (roleName) {
+                        return true;
+                    } else {
+                        console.log('Please enter a title for the role.');
+                        return false;
+                    }
+                }
             },
             {
                 type: 'input',
                 name: 'roleSalary',
                 message: 'What is the salary for this role:',
+                validate: roleSalary => {
+                    if (roleSalary) {
+                        return true;
+                    } else {
+                        console.log('Please enter a salary for the role.');
+                        return false;
+                    }
+                }
             },
             {
                 type: 'input',
                 name: 'departmentId',
                 message: 'What is the department id for this role:',
-            },
+                validate: departmentId => {
+                    if (departmentId) {
+                        return true;
+                    } else {
+                        console.log('Please enter a title for the role.');
+                        return false;
+                    }
+                }
+            }
         ])
         .then((answers) => {
             const query = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`
@@ -169,3 +193,68 @@ function addRole() {
         });
 };
 
+function addEmployee() {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'first_name',
+                message: 'What is the employees first name?',
+                validate: first_name => {
+                    if (first_name) {
+                        return true;
+                    } else {
+                        console.log('Please enter the first name of the employee.');
+                        return false;
+                    }
+                }
+            },
+            {
+                type: 'input',
+                name: 'last_name',
+                message: 'What is the employees first name?',
+                validate: last_name => {
+                    if (last_name) {
+                        return true;
+                    } else {
+                        console.log('Please enter the last name of the employee.');
+                        return false;
+                    }
+                }
+            },
+            {
+                type: 'input',
+                name: 'roleId',
+                message: 'Please enter a role ID for the employee.',
+                validate: roleId => {
+                    if (roleId) {
+                        return true;
+                    } else {
+                        console.log('Please enter a role for the employee.');
+                        return false;
+                    }
+                }
+            },
+            {
+                type: 'input',
+                name: 'managerId',
+                message: 'Please enter a manager ID for the employee.',
+                validate: managerId => {
+                    if (managerId) {
+                        return true;
+                    } else {
+                        console.log('Please enter a role for the employee.');
+                        return false;
+                    }
+                }
+            }
+        ])
+        .then((answers) => {
+            const query = `INSERT INTO employees (first_name, last_name, role_id, manager_id) Values (?, ?, ?, ?)`
+            db.query(query, [answers.first_name, answers.last_name, answers.roleId, answers.managerId], (err, result) => {
+                if (err) throw err;
+                console.log(`Successfully added ${answers.first_name} ${answers.last_name} to employees!`)
+                viewEmployees();
+            });
+        });
+};
