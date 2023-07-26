@@ -267,7 +267,7 @@ function addEmployee() {
                             if (err) throw err;
 
                             const managers = data.map(({ id, first_name, last_name }) => ({ name: (first_name + ' ' + last_name), value: id }));
-                            managers.push({name: 'None', value: ''});
+                            managers.push({ name: 'None', value: "NULL"});
                             console.log(managers);
 
                             inquirer
@@ -282,7 +282,7 @@ function addEmployee() {
                                 .then((answer) => {
                                     entries.push(answer.manager);
 
-                                    const query = `INSERT INTO employees (first_name, last_name, role_id, manager_id) Values (?, ?, ?, ?)`
+                                    const query = "INSERT INTO employees (first_name, last_name, role_id, manager_id) Values (?, ?, ?, ?)"
                                     db.query(query, entries, (err, result) => {
                                         if (err) throw err;
                                         console.log(`Successfully added ${entries[0]} ${entries[1]} to employees!`)
@@ -295,7 +295,7 @@ function addEmployee() {
 
         })
 
-        
+
 }
 
 function updateEmployeeRole() {
