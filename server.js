@@ -207,74 +207,67 @@ function addRole() {
 };
 
 function addEmployee() {
-    // queries for role id and manager id
-    // map them
+    const query = `SELECT id, title, first_name, last_name, manager_id FROM roles
+    LEFT JOIN employees ON roles.id = employees.manager_id`;
 
-    inquirer
-        .prompt([
-            {
-                type: 'input',
-                name: 'first_name',
-                message: `What is the employee's first name?`,
-                validate: first_name => {
-                    if (first_name) {
-                        return true;
-                    } else {
-                        console.log(`
+    db.query(query, (err, data) => {
+        if (err) throw err;
+
+        const roles = data.map(({ id, title }) => ({ name: (title), value: id }));
+        const managers = data.map(({manager_id, first_name, last_name}) => ({name: (first_name + ' ' + last_name), value: manager_id}));
+
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    name: 'first_name',
+                    message: `What is the employee's first name?`,
+                    validate: first_name => {
+                        if (first_name) {
+                            return true;
+                        } else {
+                            console.log(`
                         Please enter the first name of the employee.`);
-                        return false;
+                            return false;
+                        }
                     }
-                }
-            },
-            {
-                type: 'input',
-                name: 'last_name',
-                message: `What is the employee's last name?`,
-                validate: last_name => {
-                    if (last_name) {
-                        return true;
-                    } else {
-                        console.log(`
+                },
+                {
+                    type: 'input',
+                    name: 'last_name',
+                    message: `What is the employee's last name?`,
+                    validate: last_name => {
+                        if (last_name) {
+                            return true;
+                        } else {
+                            console.log(`
                         Please enter the last name of the employee.`);
-                        return false;
+                            return false;
+                        }
                     }
+                },
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: 'Please select a role for the employee.',
+                    choices: roles,
+                },
+                {
+                    type: 'input',
+                    name: 'manager',
+                    message: 'Please select a manager for the employee.',
+                    choices: managers
                 }
-            },
-            {
-                type: 'input',
-                name: 'roleId',
-                message: 'Please select a role for the employee.',
-                validate: roleId => {
-                    if (roleId) {
-                        return true;
-                    } else {
-                        console.log('Please enter a role for the employee.');
-                        return false;
-                    }
-                }
-            },
-            {
-                type: 'input',
-                name: 'managerId',
-                message: 'Please select a manager for the employee.',
-                validate: managerId => {
-                    if (managerId) {
-                        return true;
-                    } else {
-                        console.log('Please enter a manager ID for the employee.');
-                        return false;
-                    }
-                }
-            }
-        ])
-        .then((answers) => {
-            const query = `INSERT INTO employees (first_name, last_name, role_id, manager_id) Values (?, ?, ?, ?)`
-            db.query(query, [answers.first_name, answers.last_name, answers.roleId, answers.managerId], (err, result) => {
-                if (err) throw err;
-                console.log(`Successfully added ${answers.first_name} ${answers.last_name} to employees!`)
-                viewEmployees();
+            ])
+            .then((answers) => {
+                const query = `INSERT INTO employees (first_name, last_name, role_id, manager_id) Values (?, ?, ?, ?)`
+                db.query(query, [answers.first_name, answers.last_name, answers.role, answers.manager], (err, result) => {
+                    if (err) throw err;
+                    console.log(`Successfully added ${answers.first_name} ${answers.last_name} to employees!`)
+                    viewEmployees();
+                });
             });
-        });
+    });
 };
 
 function updateEmployeeRole() {
