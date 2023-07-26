@@ -255,7 +255,7 @@ function addEmployee() {
                             type: 'list',
                             name: 'role',
                             message: 'Please select a role for the employee.',
-                            choices: roles,
+                            choices: roles
                         }
                     ])
                     .then(answer => {
@@ -267,7 +267,7 @@ function addEmployee() {
                             if (err) throw err;
 
                             const managers = data.map(({ id, first_name, last_name }) => ({ name: (first_name + ' ' + last_name), value: id }));
-                            managers.push({ name: 'None', value: "NULL"});
+                            managers.push({ name: 'None', value: null });
                             console.log(managers);
 
                             inquirer
@@ -289,14 +289,11 @@ function addEmployee() {
                                         viewEmployees();
                                     });
                                 });
-                        })
-                    })
-            })
-
-        })
-
-
-}
+                        });
+                    });
+            });
+        });
+};
 
 function updateEmployeeRole() {
     const allQuery = `SELECT * FROM employees`;
