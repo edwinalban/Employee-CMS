@@ -9,8 +9,8 @@ VALUES ("Engineer I", "50000.00", 1),
        ("Sales I", "60000.00", 3);
 
 INSERT INTO employees (first_name, last_name, role_id, manager_id)
-VALUES ("John", "Doe", 1, 1),
-       ("Jane", "Doe", 2, 2),
-       ("Edwin", "Alban", 3, 3);
+VALUES ("John", "Doe", 1, NULL),
+       ("Jane", "Doe", 2, NULL),
+       ("Edwin", "Alban", 3, NULL);
 
 
