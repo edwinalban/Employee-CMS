@@ -268,7 +268,6 @@ function addEmployee() {
 
                             const managers = data.map(({ id, first_name, last_name }) => ({ name: (first_name + ' ' + last_name), value: id }));
                             managers.push({ name: 'None', value: null });
-                            console.log(managers);
 
                             inquirer
                                 .prompt([
@@ -337,13 +336,9 @@ function updateEmployeeRole() {
                             const newRole = answer.role;
                             chosenEmployee.push(newRole);
 
-                            console.log(chosenEmployee);
-
                             let currentRole = chosenEmployee[0]
                             chosenEmployee[0] = newRole;
                             chosenEmployee[1] = currentRole;
-
-                            console.log(chosenEmployee);
 
                             const updateQuery = `UPDATE employees SET role_id = ? WHERE id = ?`;
 
