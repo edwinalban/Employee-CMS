@@ -21,7 +21,7 @@ db.connect((err) => {
 // Function to display the main menu and handle user choices
 function promptUser() {
     inquirer
-        .prompt({
+        .prompt({ // Prompt user for which action they would like to perform
             type: 'list',
             name: 'index',
             message: 'What would you like to do?',
@@ -36,7 +36,7 @@ function promptUser() {
                 `Exit`,
             ],
         })
-        .then((answer) => {
+        .then((answer) => { // Run function per user answer
             switch (answer.index) {
                 case `View all departments`:
                     viewDepartments();
@@ -97,6 +97,7 @@ function viewRoles() {
 
 // Function to view all Employees
 function viewEmployees() {
+    // Join the roles table with the departments table to display the employees roles, departments, salaries, and managers
     const query = `
     SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
     FROM employees
@@ -115,7 +116,7 @@ function viewEmployees() {
 // Function to add a deparment
 function addDepartment() {
     inquirer
-        .prompt([{
+        .prompt([{ // Prompt user for which deparment they would like to add
             type: 'input',
             name: 'addDepartment',
             message: 'What is the name of the Department you would like to add?',
@@ -130,27 +131,27 @@ function addDepartment() {
             }
         }])
         .then((answer) => {
-            const query = `INSERT INTO departments (name) Values (?)`;
+            const query = `INSERT INTO departments (name) Values (?)`; // Add user input to deparments table
             db.query(query, answer.addDepartment, (err, result) => {
                 if (err) throw err;
                 console.log(`Successfully added ${answer.addDepartment} to departments!`);
 
-                viewDepartments();
+                viewDepartments(); // Display deparments table after updates
             });
         });
 };
 
 // Function to add a role
 function addRole() {
-    const query = `SELECT * FROM departments`;
+    const query = `SELECT * FROM departments`; // Query all deparments table info
 
     db.query(query, (err, data) => {
         if (err) throw err;
 
-        const departments = data.map(({ id, name }) => ({ name: name, value: id }));
+        const departments = data.map(({ id, name }) => ({ name: name, value: id })); // Map data info as json object to departments variable 
 
         inquirer
-            .prompt([
+            .prompt([ // Prompt use for inputs for the name, salary, and department of the role
                 {
                     type: 'input',
                     name: 'roleName',
@@ -192,7 +193,7 @@ function addRole() {
                 }
             ])
             .then((answers) => {
-                const query = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`
+                const query = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)` // Add user inputs to roles table
 
                 const userInputs = [];
                 userInputs.push(answers.roleName, answers.roleSalary, answers.department);
@@ -200,15 +201,16 @@ function addRole() {
                 db.query(query, userInputs, (err, result) => {
                     if (err) throw err;
                     console.log(`Successfully added ${answers.roleName} to roles!`);
-                    viewRoles();
+                    viewRoles(); // Display roles table after updates
                 });
             });
     });
 };
 
+// Function to add an employee
 function addEmployee() {
     inquirer
-        .prompt([
+        .prompt([ // Prompt use for inputs for the first name and last name of the new employee
             {
                 type: 'input',
                 name: 'firstName',
@@ -242,15 +244,15 @@ function addEmployee() {
             const entries = [];
             entries.push(answers.firstName, answers.lastName);
 
-            const rolesQuery = `SELECT roles.id, roles.title FROM roles`;
+            const rolesQuery = `SELECT roles.id, roles.title FROM roles`; // Query id and title from roles table
 
             db.query(rolesQuery, (err, data) => {
                 if (err) throw err;
 
-                const roles = data.map(({ id, title }) => ({ name: title, value: id }))
+                const roles = data.map(({ id, title }) => ({ name: title, value: id })) // Map id and title as json object to roles variable
 
                 inquirer
-                    .prompt([
+                    .prompt([ // Prompt user for the new employee's role
                         {
                             type: 'list',
                             name: 'role',
@@ -261,16 +263,16 @@ function addEmployee() {
                     .then(answer => {
                         entries.push(answer.role)
 
-                        const managerQuery = `SELECT id, first_name, last_name FROM employees`;
+                        const managerQuery = `SELECT id, first_name, last_name FROM employees`; // Query id, first name, and last name from employees table
 
                         db.query(managerQuery, (err, data) => {
                             if (err) throw err;
 
-                            const managers = data.map(({ id, first_name, last_name }) => ({ name: (first_name + ' ' + last_name), value: id }));
-                            managers.push({ name: 'None', value: null });
+                            const managers = data.map(({ id, first_name, last_name }) => ({ name: (first_name + ' ' + last_name), value: id })); // Map id, first name, and last name as json object to managers variable
+                            managers.push({ name: 'None', value: null }); // Add option for no manager to managers variable
 
                             inquirer
-                                .prompt([
+                                .prompt([ // Prompt user for manager of the new employee
                                     {
                                         type: 'list',
                                         name: 'manager',
@@ -281,11 +283,11 @@ function addEmployee() {
                                 .then((answer) => {
                                     entries.push(answer.manager);
 
-                                    const query = "INSERT INTO employees (first_name, last_name, role_id, manager_id) Values (?, ?, ?, ?)"
+                                    const query = "INSERT INTO employees (first_name, last_name, role_id, manager_id) Values (?, ?, ?, ?)" // Add user inputs to employees table
                                     db.query(query, entries, (err, result) => {
                                         if (err) throw err;
                                         console.log(`Successfully added ${entries[0]} ${entries[1]} to employees!`)
-                                        viewEmployees();
+                                        viewEmployees(); // Display employees table after updates
                                     });
                                 });
                         });
@@ -294,16 +296,17 @@ function addEmployee() {
         });
 };
 
+// Function to update role of employee
 function updateEmployeeRole() {
-    const allQuery = `SELECT * FROM employees`;
+    const allQuery = `SELECT * FROM employees`; // Query all info from employees table
 
     db.query(allQuery, (err, data) => {
         if (err) throw err;
 
-        const employees = data.map(({ id, first_name, last_name }) => ({ name: (first_name + ' ' + last_name), value: id }));
+        const employees = data.map(({ id, first_name, last_name }) => ({ name: (first_name + ' ' + last_name), value: id })); // Map id, first name, and last name as json object to employees variable
 
         inquirer
-            .prompt([
+            .prompt([ // Prompt user to employee's name for update 
                 {
                     type: 'list',
                     name: 'employeeName',
@@ -316,15 +319,15 @@ function updateEmployeeRole() {
                 const chosenEmployee = [];
                 chosenEmployee.push(employee);
 
-                const allRolesQuery = `SELECT * FROM roles`;
+                const allRolesQuery = `SELECT * FROM roles`; // Query all info from roles table
 
                 db.query(allRolesQuery, (err, data) => {
                     if (err) throw err;
 
-                    const allRoles = data.map(({ id, title }) => ({ name: title, value: id }));
+                    const allRoles = data.map(({ id, title }) => ({ name: title, value: id })); // Map id and title as json object to allRoles variable
 
                     inquirer
-                        .prompt(
+                        .prompt( // Prompt user for employee's new role
                             {
                                 type: 'list',
                                 name: 'role',
@@ -336,17 +339,16 @@ function updateEmployeeRole() {
                             const newRole = answer.role;
                             chosenEmployee.push(newRole);
 
-                            let currentRole = chosenEmployee[0]
+                            let currentRole = chosenEmployee[0] // Order data in chosenEmployee array appropriately for update query
                             chosenEmployee[0] = newRole;
                             chosenEmployee[1] = currentRole;
 
-                            const updateQuery = `UPDATE employees SET role_id = ? WHERE id = ?`;
+                            const updateQuery = `UPDATE employees SET role_id = ? WHERE id = ?`; // Update employees table with new role per the role_id field
 
                             db.query(updateQuery, chosenEmployee, (err, result) => {
                                 if (err) throw err;
                                 console.log(`Successfully updated employee's role!`);
-
-                                viewEmployees();
+                                viewEmployees(); // Display employees table after updates
                             });
                         });
                 });

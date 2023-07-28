@@ -1,6 +1,10 @@
+-- Delete Database if it already exists
 DROP DATABASE IF EXISTS cms_db;
+
+-- Create Database
 CREATE DATABASE cms_db;
 
+-- Select Database for use
 USE cms_db;
 
 -- Create the Departments table
